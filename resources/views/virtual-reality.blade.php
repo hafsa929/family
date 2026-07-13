@@ -253,7 +253,7 @@
         <h6 class="mb-0">تسجيل دفعة</h6>
       </div>
 
-      <form method="POST" action="{{ url('/contributions/pay/'.$contribution->id) }}">
+      <form method="POST" action="{{ secure_url('/contributions/pay/'.$contribution->id) }}">
         @csrf
 
         <div class="modal-body">
