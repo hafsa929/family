@@ -245,7 +245,14 @@
         <!-- <a href="" class="btn btn-sm btn-warning">استثناء</a> -->
     </td>
 </tr>
-<div class="modal fade" id="payModal{{ $contribution->id }}" tabindex="-1">
+
+@endforeach
+</tbody>
+          </table>
+        </div>
+      </div>
+      @foreach($contributions as $contribution)
+  <div class="modal fade" id="payModal{{ $contribution->id }}" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content shadow-lg rounded">
 
@@ -289,10 +296,6 @@
 </div>
 
 @endforeach
-</tbody>
-          </table>
-        </div>
-      </div>
 <div class="modal fade" id="generateMonthModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
 
@@ -536,7 +539,11 @@ function submitFilter() {
         formData.append('action', 'filter');
     }
 
-    fetch("{{ url('/contributions') }}?" + new URLSearchParams(formData))
+    fetch("{{ url('/contributions') }}?" + new URLSearchParams(formData), {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
     .then(res => res.text())
     .then(html => {
 
@@ -546,6 +553,7 @@ function submitFilter() {
         let newTable = doc.getElementById('contributionsTable');
 
         document.getElementById('contributionsTable').innerHTML = newTable.innerHTML;
+      
     });
 }
 
@@ -579,7 +587,11 @@ new Swiper(".monthSwiper", {
 });
 function filterByMonth(month) {
 
-    fetch("{{ url('/contributions') }}?month=" + month)
+    fetch("{{ url('/contributions') }}?month=" + month, {
+        headers:{
+            'X-Requested-With':'XMLHttpRequest'
+        }
+    })
     .then(res => res.text())
     .then(html => {
 

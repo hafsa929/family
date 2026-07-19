@@ -58,7 +58,7 @@ if ($request->year) {
 
     //  لو الطلب AJAX
     if ($request->ajax()) {
-        return view('partials.contributions_table', compact('contributions'))->render();
+        return view('virtual-reality', compact('contributions'))->render();
     }
 
     $users = User::where('status', 'active')->get();
