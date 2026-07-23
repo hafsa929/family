@@ -212,4 +212,22 @@ public function missingMonths()
 
     return response()->json($months);
 }
+
+public function printMonth($month)
+{
+    $contributions = Contribution::with('user')
+        ->where('month',$month)
+        ->get();
+
+    return view('reports.contribution-month',compact('contributions','month'));
+}
+
+public function printYear($year)
+{
+    $contributions = Contribution::with('user')
+        ->where('month','like',$year.'%')
+        ->get();
+
+    return view('reports.contribution-year',compact('contributions','year'));
+}
 }

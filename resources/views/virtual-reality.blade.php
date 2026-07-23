@@ -189,7 +189,96 @@
     بحث
   </button>
 </div>
+<div class="col-md-2">
+    <div class="d-flex justify-content-center gap-2">
 
+        <button type="button"
+                class="btn btn-success btn-icon"
+                data-bs-toggle="modal"
+                data-bs-target="#printModal"
+                title="طباعة">
+            <i class="fas fa-print"></i>
+        </button>
+
+        <button type="button"
+                class="btn btn-info btn-icon"
+                onclick="shareReport()"
+                title="مشاركة">
+            <i class="fas fa-share-alt"></i>
+        </button>
+
+    </div>
+</div>
+
+
+<div class="modal fade" id="printModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5>طباعة تقرير الاشتراكات</h5>
+            </div>
+
+            <div class="modal-body">
+
+                <label>نوع التقرير</label>
+
+                <select class="form-control" id="print_type">
+                    <option value="month">حسب شهر</option>
+                    <option value="year">حسب سنة</option>
+                </select>
+
+                <div class="mt-3" id="monthDiv">
+
+                    <label>الشهر</label>
+
+                    <select class="form-control" id="monthSelect">
+
+                        @foreach($months as $month => $items)
+
+                        <option value="{{ $month }}">
+                            {{ \Carbon\Carbon::parse($month)->translatedFormat('F Y') }}
+                        </option>
+
+                        @endforeach
+
+                    </select>
+
+                </div>
+
+                <div class="mt-3 d-none" id="yearDiv">
+
+                    <label>السنة</label>
+
+                    <select class="form-control" id="yearSelect">
+
+                        @foreach($contributions->groupBy(function($c){
+                            return substr($c->month,0,4);
+                        }) as $year=>$items)
+
+                        <option value="{{ $year }}">
+                            {{ $year }}
+                        </option>
+
+                        @endforeach
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-primary" onclick="printReport()">
+                    طباعة
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
 </form>
 </div>
         <div id="contributionsTable" class="table-responsive">
@@ -683,7 +772,69 @@ generateForm.addEventListener('submit', function(e){
 
 });
 
+document.getElementById('print_type').addEventListener('change', function(){
 
+    if(this.value=='month'){
+
+        monthDiv.classList.remove('d-none');
+        yearDiv.classList.add('d-none');
+
+    }else{
+
+        monthDiv.classList.add('d-none');
+        yearDiv.classList.remove('d-none');
+
+    }
+
+});
+
+function printReport(){
+
+    let type=document.getElementById('print_type').value;
+
+    if(type=='month'){
+
+        let month=document.getElementById('monthSelect').value;
+
+        window.open('/contributions/print/month/'+month,'_blank');
+
+    }else{
+
+        let year=document.getElementById('yearSelect').value;
+
+        window.open('/contributions/print/year/'+year,'_blank');
+
+    }
+
+}
+function shareReport(){
+
+    let type = document.getElementById('print_type').value;
+
+    let url = '';
+
+    if(type == 'month'){
+
+        let month = document.getElementById('monthSelect').value;
+
+        url = window.location.origin + '/contributions/print/month/' + month;
+
+    }else{
+
+        let year = document.getElementById('yearSelect').value;
+
+        url = window.location.origin + '/contributions/print/year/' + year;
+
+    }
+
+    let text = "تقرير الاشتراكات\n\n" + url;
+
+    window.open(
+        "https://wa.me/218917490040?text=" + encodeURIComponent(text),
+        "_blank"
+    );
+
+}
 </script>
   <style>
   body { direction: rtl; }
@@ -768,6 +919,16 @@ generateForm.addEventListener('submit', function(e){
     padding-bottom:10px;
 }
 
+.btn-icon{
+    width:42px;
+    height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    padding:0;
+    font-size:18px;
+}
 </style>
 
 @endsection

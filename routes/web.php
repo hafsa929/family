@@ -32,3 +32,8 @@ Route::get('/missing-months', [ContributionController::class, 'missingMonths']);
 Route::get('/billing', [FinanceController::class, 'index'])->name('billing');
 
 Route::post('/expenses/store', [FinanceController::class, 'store'])->name('expenses.store');
+Route::get('/contributions/print/month/{month}',
+    [ContributionController::class,'printMonth']);
+
+Route::get('/contributions/print/year/{year}',
+    [ContributionController::class,'printYear']);
