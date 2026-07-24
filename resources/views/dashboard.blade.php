@@ -101,7 +101,7 @@
                             <div class="p-3">
 
                                 <h6 class="text-primary text-uppercase">
-                                    نظام التكافؤ العائلي
+                                    نظام التكافل العائلي
                                 </h6>
 
                                 <h2 class="font-weight-bolder mb-3">
@@ -124,7 +124,7 @@
                         <div class="col-lg-6 text-center bg-gradient-primary">
 
                             <img
-                                src="../assets/img/illustrations/img12.png"
+                                src="../assets/img/illustrations/img88.jpg"
                                 class="img-fluid p-4"
                                 alt="dashboard-image">
 
@@ -191,7 +191,7 @@
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-6">
-                        <img src="../assets/img/illustrations/img8.jpg"
+                        <img src="../assets/img/illustrations/img12.png"
                              class="img-fluid rounded shadow-sm hover-zoom"
                              alt="">
                     </div>
