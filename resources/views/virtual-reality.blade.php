@@ -202,7 +202,8 @@
 
         <button type="button"
                 class="btn btn-info btn-icon"
-                onclick="shareReport()"
+                data-bs-toggle="modal"
+                data-bs-target="#shareModal"
                 title="مشاركة">
             <i class="fas fa-share-alt"></i>
         </button>
@@ -210,7 +211,51 @@
     </div>
 </div>
 
+<div class="modal fade" id="shareModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
 
+            <div class="modal-header">
+                <h5>مشاركة تقرير الاشتراكات</h5>
+            </div>
+
+            <div class="modal-body">
+
+                <label>نوع التقرير</label>
+                <select class="form-control" id="share_type">
+                    <option value="month">حسب شهر</option>
+                    <option value="year">حسب سنة</option>
+                </select>
+
+                <div class="mt-3" id="shareMonthDiv">
+                    <label>الشهر</label>
+                    <select class="form-control" id="shareMonthSelect">
+                        @foreach($months as $month => $items)
+                            <option value="{{ $month }}">
+                                {{ \Carbon\Carbon::parse($month)->translatedFormat('F Y') }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mt-3 d-none" id="shareYearDiv">
+                    <label>السنة</label>
+                    <select class="form-control" id="shareYearSelect">
+                        @foreach($contributions->groupBy(fn($c)=>substr($c->month,0,4)) as $year=>$items)
+                            <option value="{{ $year }}">{{ $year }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-info" onclick="shareReport()">مشاركة</button>
+            </div>
+
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="printModal">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -834,6 +879,42 @@ function shareReport(){
         "_blank"
     );
 
+}
+document.getElementById('share_type').addEventListener('change', function () {
+
+    if (this.value == 'month') {
+        shareMonthDiv.classList.remove('d-none');
+        shareYearDiv.classList.add('d-none');
+    } else {
+        shareMonthDiv.classList.add('d-none');
+        shareYearDiv.classList.remove('d-none');
+    }
+
+});
+
+function shareReport() {
+
+    let type = document.getElementById('share_type').value;
+    let url = '';
+
+    if (type == 'month') {
+
+        let month = document.getElementById('shareMonthSelect').value;
+        url = window.location.origin + '/contributions/pdf/month/' + month;
+
+    } else {
+
+        let year = document.getElementById('shareYearSelect').value;
+        url = window.location.origin + '/contributions/pdf/year/' + year;
+
+    }
+
+    let text = "تقرير الاشتراكات\n\n" + url;
+
+    window.open(
+        "https://wa.me/?text=" + encodeURIComponent(text),
+        "_blank"
+    );
 }
 </script>
   <style>

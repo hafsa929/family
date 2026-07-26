@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Contribution;
 use App\Models\Transaction;
-
+use Mpdf\Mpdf;
 
 class ContributionController extends Controller
 {
@@ -229,5 +229,47 @@ public function printYear($year)
         ->get();
 
     return view('reports.contribution-year',compact('contributions','year'));
+}
+
+public function pdfMonth($month)
+{
+    $contributions = Contribution::where('month', $month)
+        ->with('user')
+        ->get();
+
+    $html = view('contributions.print', compact('contributions', 'month'))->render();
+
+    $mpdf = new Mpdf([
+        'mode' => 'utf-8',
+        'format' => 'A4',
+        'directionality' => 'rtl',
+        'default_font' => 'dejavusans'
+    ]);
+
+    $mpdf->WriteHTML($html);
+
+    return response($mpdf->Output("اشتراكات-$month.pdf", 'S'))
+        ->header('Content-Type', 'application/pdf');
+}
+
+public function pdfYear($year)
+{
+    $contributions = Contribution::where('month', 'like', $year.'%')
+        ->with('user')
+        ->get();
+
+    $html = view('contributions.print-year', compact('contributions', 'year'))->render();
+
+    $mpdf = new Mpdf([
+        'mode' => 'utf-8',
+        'format' => 'A4',
+        'directionality' => 'rtl',
+        'default_font' => 'dejavusans'
+    ]);
+
+    $mpdf->WriteHTML($html);
+
+    return response($mpdf->Output("اشتراكات-$year.pdf", 'S'))
+        ->header('Content-Type', 'application/pdf');
 }
 }

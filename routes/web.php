@@ -26,7 +26,7 @@ Route::get('/users/{id}/statement', [UserController::class, 'statement'])
 
 Route::get('/contributions', [ContributionController::class, 'index']);
 Route::post('/contributions/generate-month', [ContributionController::class, 'generateMonth']);
-Route::post('/contributions/pay/{id}', [ContributionController::class, 'pay']);
+Route::post('/contributions/pay/{id}', [ContributionController::class, 'pay'])->name('contributions.pay');
 Route::get('/missing-months', [ContributionController::class, 'missingMonths']);
 
 Route::get('/billing', [FinanceController::class, 'index'])->name('billing');
@@ -37,3 +37,6 @@ Route::get('/contributions/print/month/{month}',
 
 Route::get('/contributions/print/year/{year}',
     [ContributionController::class,'printYear']);
+
+Route::get('/contributions/pdf/month/{month}', [ContributionController::class, 'pdfMonth']);
+Route::get('/contributions/pdf/year/{year}', [ContributionController::class, 'pdfYear'])->name('contributions.pdf.year');
