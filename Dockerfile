@@ -4,9 +4,13 @@ RUN apt-get update && apt-get install -y \
     git \
     unzip \
     zip \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libpng-dev \
     libzip-dev \
     curl \
-    && docker-php-ext-install pdo pdo_mysql zip
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql zip gd
 
 # Install Node.js and npm
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
