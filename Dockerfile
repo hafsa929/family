@@ -24,7 +24,8 @@ COPY . .
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
-
+RUN composer show mpdf/mpdf
+RUN composer dump-autoload -o
 # Install and build Vite assets
 RUN npm install
 RUN npm run build
