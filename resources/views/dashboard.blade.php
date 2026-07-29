@@ -105,7 +105,7 @@
                                 </h6>
 
                                 <h2 class="font-weight-bolder mb-3">
-                                    Family Dashboard
+                                    لوحة التحكم العائلية
                                 </h2>
 
                                 <p class="text-secondary mb-4">

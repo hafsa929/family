@@ -22,7 +22,6 @@ class UserController extends Controller
 
     return view('tables', compact('users', 'contributions'));
 }
-
 public function store(Request $request)
 {
     $request->validate([
@@ -31,14 +30,34 @@ public function store(Request $request)
         'status' => 'required',
     ]);
 
-    User::create([
+    // إضافة العضو
+    $user = User::create([
         'name' => $request->name,
         'phone' => $request->phone,
         'status' => $request->status,
     ]);
 
+    // جلب جميع الأشهر الموجودة مع قيمة الاشتراك
+    $months = Contribution::select('month', 'expected_amount')
+        ->distinct()
+        ->get();
+
+    // إنشاء اشتراك للعضو الجديد في جميع الأشهر الموجودة
+    foreach ($months as $month) {
+
+        Contribution::create([
+            'user_id' => $user->id,
+            'month' => $month->month,
+            'expected_amount' => $month->expected_amount,
+            'paid_amount' => 0,
+            'status' => 'unpaid',
+        ]);
+
+    }
+
     return redirect()->back()->with('success', 'تم إضافة العضو بنجاح');
 }
+
     public function update(Request $request, $id)
 {
     $user = User::findOrFail($id);

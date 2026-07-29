@@ -54,7 +54,11 @@ if ($request->year) {
     $query->where('month', 'like', $request->year . '%');
 }
 
-    $contributions = $query->get();
+   $contributions = $query
+    ->orderBy('month', 'asc')
+    ->orderBy(User::select('id')
+        ->whereColumn('users.id', 'contributions.user_id'))
+    ->get();
 
     //  لو الطلب AJAX
     if ($request->ajax()) {
