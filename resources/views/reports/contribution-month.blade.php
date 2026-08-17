@@ -82,7 +82,26 @@
         </tr>
 
     @endforeach
+{{-- الإجمالي --}}
+<tr style="font-weight:bold; background:#f2f2f2;">
 
+    <td>الإجمالي</td>
+
+    <td>
+        {{ $contributions->sum('expected_amount') }}
+    </td>
+
+    <td>
+        {{ $contributions->sum('paid_amount') }}
+    </td>
+
+    <td>
+        {{ $contributions->sum('expected_amount') - $contributions->sum('paid_amount') }}
+    </td>
+
+    <td>-</td>
+
+</tr>
     </tbody>
 
 </table>

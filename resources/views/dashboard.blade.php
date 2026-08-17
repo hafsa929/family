@@ -145,7 +145,7 @@
 
                     <div class="bg-cover h-100 border-radius-xl"
                          style="
-                            background-image:url('../assets/img/illustrations/sh.jpg');
+                            background-image:url('../assets/img/illustrations/img4.jpg');
                             min-height:320px;
                             background-size:cover;
                             background-position:center;
@@ -184,53 +184,29 @@
 
                 <div class="row g-3">
 
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <img src="../assets/img/illustrations/img11.jpg"
-                             class="img-fluid rounded shadow-sm hover-zoom"
-                             alt="">
+                  <div class="col-lg-3 col-md-4 col-6">
+                    <img id="img1" src="../assets/img/illustrations/img11.jpg"
+                            class="img-fluid rounded shadow-sm hover-zoom"
+                            style="height:220px;width:100%;object-fit:cover">
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-6">
-                        <img src="../assets/img/illustrations/img12.png"
-                             class="img-fluid rounded shadow-sm hover-zoom"
-                             alt="">
+                        <img id="img2" src="../assets/img/illustrations/img5.jpeg"
+                            class="img-fluid rounded shadow-sm hover-zoom"
+                            style="height:220px;width:100%;object-fit:cover">
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-6">
-                        <img src="../assets/img/illustrations/img10.jpg"
-                             class="img-fluid rounded shadow-sm hover-zoom"
-                             alt="">
+                        <img id="img3" src="../assets/img/illustrations/img10.jpg"
+                            class="img-fluid rounded shadow-sm hover-zoom"
+                            style="height:220px;width:100%;object-fit:cover">
                     </div>
 
                     <div class="col-lg-3 col-md-4 col-6">
-                        <img src="../assets/img/illustrations/img9.jpg"
-                             class="img-fluid rounded shadow-sm hover-zoom"
-                             alt="">
+                        <img id="img4" src="../assets/img/illustrations/img9.jpg"
+                            class="img-fluid rounded shadow-sm hover-zoom"
+                            style="height:220px;width:100%;object-fit:cover">
                     </div>
-
-                    <!-- <div class="col-lg-3 col-md-4 col-6">
-                        <img src="../assets/img/illustrations/img9.jpg"
-                             class="img-fluid rounded shadow-sm hover-zoom"
-                             alt="">
-                    </div>
-
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <img src="../assets/img/illustrations/img12.png"
-                             class="img-fluid rounded shadow-sm hover-zoom"
-                             alt="">
-                    </div>
-
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <img src="../assets/img/illustrations/sh.jpg"
-                             class="img-fluid rounded shadow-sm hover-zoom"
-                             alt="">
-                    </div>
-
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <img src="../assets/img/img8.jpg"
-                             class="img-fluid rounded shadow-sm hover-zoom"
-                             alt="">
-                    </div> -->
 
                 </div>
 
@@ -259,8 +235,37 @@
 <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
 <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
 <script src="../assets/js/plugins/chartjs.min.js"></script>
-
 <script>
+const photos = [
+    "../assets/img/illustrations/img10.jpg",
+    "../assets/img/illustrations/img12.png",
+    "../assets/img/illustrations/img122.png",
+    "../assets/img/illustrations/img4.jpg",
+    "../assets/img/illustrations/img5.jpeg",
+    "../assets/img/illustrations/img8.jpg",
+    "../assets/img/illustrations/img7.jpeg",
+    "../assets/img/illustrations/img88.jpg",
+    "../assets/img/illustrations/img9.jpg",
+    "../assets/img/illustrations/img11.jpg",
+    // "../assets/img/illustrations/img11.jpg",
+    "../assets/img/illustrations/img12.png"
+];
+
+let current = 0;
+
+function changeImages() {
+
+    document.getElementById("img1").src = photos[current % photos.length];
+    document.getElementById("img2").src = photos[(current + 1) % photos.length];
+    document.getElementById("img3").src = photos[(current + 2) % photos.length];
+    document.getElementById("img4").src = photos[(current + 3) % photos.length];
+
+    current += 4;
+}
+
+setInterval(changeImages, 5000);
+// نهايه الصور وتنسيقها 
+
     var ctx1 = document.getElementById("chart-line").getContext("2d");
 
     var gradientStroke1 = ctx1.createLinearGradient(0, 230, 0, 50);

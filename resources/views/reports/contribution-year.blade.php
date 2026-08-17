@@ -43,7 +43,28 @@
 </tr>
 
 @endforeach
+<tr style="font-weight:bold; background:#f2f2f2;">
 
+    <td colspan="2">إجمالي السنة</td>
+
+    <td>
+        {{ $contributions->sum('expected_amount') }}
+    </td>
+
+    <td>
+        {{ $contributions->sum('paid_amount') }}
+    </td>
+
+    <td>
+        @php
+            $totalExpected = $contributions->sum('expected_amount');
+            $totalPaid = $contributions->sum('paid_amount');
+        @endphp
+
+        {{ $totalExpected - $totalPaid }}
+    </td>
+
+</tr>
 </table>
 <script>
 window.onload = function () {
