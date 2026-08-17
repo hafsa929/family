@@ -361,21 +361,58 @@
     </td>
 
     <td>
-        @if($contribution->status != 'paid')
 
-          <button class="btn btn-sm btn-primary"
-              data-bs-toggle="modal"
-              data-bs-target="#payModal{{ $contribution->id }}">
-              دفع
-          </button>
 
-          @else
+    {{-- زر الدفع --}}
+    @if($contribution->status != 'paid')
 
-          <button class="btn btn-sm btn-success" disabled>
-              خالص
-          </button>
+        <button class="btn btn-sm btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#payModal{{ $contribution->id }}"
+                title="تسجيل الدفع">
+                 دفع
+            <i class="fas fa-money-bill-wave"></i>
+        </button>
 
-          @endif
+    @else
+
+        {{-- خالص --}}
+        <button class="btn btn-sm btn-success" disabled>
+            خالص
+        </button>
+
+    @endif
+
+
+    {{-- زر التعديل --}}
+    @if($contribution->status == 'paid' || $contribution->status == 'partial')
+
+        {{-- القلم فعال --}}
+        <button type="button"
+                class="btn btn-sm btn-warning"
+                data-bs-toggle="modal"
+                data-bs-target="#editPayModal{{ $contribution->id }}"
+                title="تعديل الدفع">
+               
+            <i class="fas fa-pen"></i>
+
+        </button>
+
+    @else
+
+        {{-- القلم غير فعال --}}
+        <button type="button"
+                class="btn btn-sm btn-secondary"
+                disabled
+                title="لا يوجد دفع لتعديله">
+
+            <i class="fas fa-pen"></i>
+
+        </button>
+
+    @endif
+
+
         <!-- <a href="" class="btn btn-sm btn-warning">استثناء</a> -->
     </td>
 </tr>
@@ -427,6 +464,99 @@
 
     </div>
   </div>
+</div>
+
+@endforeach
+@foreach($contributions as $contribution)
+
+<div class="modal fade"
+     id="editPayModal{{ $contribution->id }}"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content shadow-lg rounded">
+
+            <div class="modal-header bg-warning">
+
+                <h6 class="mb-0 text-white">
+                    تعديل الدفع
+                </h6>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+
+            <form method="POST"
+                  action="{{ route('contributions.updatePayment', $contribution->id) }}">
+
+                @csrf
+                @method('PUT')
+
+
+                <div class="modal-body">
+
+                    <p>
+                        <b>العضو:</b>
+                        {{ $contribution->user->name }}
+                    </p>
+
+                    <p>
+                        <b>الشهر:</b>
+                        {{ $contribution->month }}
+                    </p>
+
+                    <p>
+                        <b>المطلوب:</b>
+                        {{ $contribution->expected_amount }} د.ل
+                    </p>
+
+
+                    <label>
+                        المبلغ المدفوع
+                    </label>
+
+                    <input type="number"
+                           name="paid_amount"
+                           class="form-control"
+                           min="0"
+                           max="{{ $contribution->expected_amount }}"
+                           value="{{ $contribution->paid_amount }}"
+                           required>
+
+
+                    <small class="text-muted">
+                        إذا وضعت 0 سيتم اعتبار الاشتراك غير مدفوع.
+                    </small>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        إلغاء
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-warning">
+                        حفظ التعديل
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
 </div>
 
 @endforeach

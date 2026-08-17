@@ -276,4 +276,41 @@ public function pdfYear($year)
     return response($mpdf->Output("اشتراكات-$year.pdf", 'S'))
         ->header('Content-Type', 'application/pdf');
 }
+public function updatePayment(Request $request, $id)
+{
+    $contribution = Contribution::findOrFail($id);
+
+    $request->validate([
+        'paid_amount' => 'required|numeric|min:0',
+    ]);
+
+    $paidAmount = $request->paid_amount;
+
+    // لا يسمح بأن يكون المدفوع أكبر من المطلوب
+    if ($paidAmount > $contribution->expected_amount) {
+        return back()->with('error', 'المبلغ المدفوع لا يمكن أن يكون أكبر من المبلغ المطلوب');
+    }
+
+    // تحديث المبلغ
+    $contribution->paid_amount = $paidAmount;
+
+    // تحديد الحالة تلقائياً
+    if ($paidAmount == 0) {
+
+        $contribution->status = 'unpaid';
+
+    } elseif ($paidAmount < $contribution->expected_amount) {
+
+        $contribution->status = 'partial';
+
+    } else {
+
+        $contribution->status = 'paid';
+    }
+
+    $contribution->save();
+
+    return back()->with('success', 'تم تعديل الدفع بنجاح');
+}
+
 }

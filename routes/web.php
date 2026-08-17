@@ -40,3 +40,7 @@ Route::get('/contributions/print/year/{year}',
 
 Route::get('/contributions/pdf/month/{month}', [ContributionController::class, 'pdfMonth']);
 Route::get('/contributions/pdf/year/{year}', [ContributionController::class, 'pdfYear'])->name('contributions.pdf.year');
+
+Route::put('/contributions/update-payment/{id}', 
+    [ContributionController::class, 'updatePayment']
+)->name('contributions.updatePayment');
