@@ -14,8 +14,7 @@ class FinanceController extends Controller
         // إجمالي الإيرادات
         $totalRevenues = Transaction::where('type', 'deposit')->sum('amount');
         // إجمالي المصروفات
-        $totalExpenses = Expense::sum('amount');
-
+        $totalExpenses = Transaction::where('type', 'withdraw')->sum('amount');
         // الرصيد الحالي
         $balance = $totalRevenues - $totalExpenses;
 
@@ -34,7 +33,7 @@ class FinanceController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
-$users = User::all();
+        $users = User::all();
 
         return view('billing', [
     'totalRevenues' => $totalRevenues,
