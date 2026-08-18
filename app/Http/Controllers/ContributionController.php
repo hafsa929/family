@@ -11,64 +11,163 @@ use Mpdf\Mpdf;
 
 class ContributionController extends Controller
 {
-    public function index(Request $request)
+public function index(Request $request)
 {
     $query = Contribution::with('user');
 
-    // بحث
-if ($request->search) {
+    // =========================
+    // البحث
+    // =========================
+    if ($request->search) {
 
-    $search = trim($request->search);
+        $search = trim($request->search);
 
-    // 🔁 تحويل الكلمات العربية إلى قيم قاعدة البيانات
-    $statusMap = [
-        'تم الدفع' => 'paid',
-        'جزئي' => 'partial',
-        'غير مدفوع' => 'unpaid',
-    ];
+        $statusMap = [
+            'تم الدفع'   => 'paid',
+            'جزئي'       => 'partial',
+            'غير مدفوع'  => 'unpaid',
+        ];
 
-    // إذا كتب حالة بالعربي نحولها
-    if (isset($statusMap[$search])) {
-        $search = $statusMap[$search];
+        if (isset($statusMap[$search])) {
+            $search = $statusMap[$search];
+        }
+
+        $query->where(function ($q) use ($search) {
+
+            $q->whereHas('user', function ($qq) use ($search) {
+
+                $qq->where('name', 'like', '%' . $search . '%');
+
+            })->orWhere('status', 'like', '%' . $search . '%');
+
+        });
     }
 
-    $query->where(function ($q) use ($search) {
 
-        $q->whereHas('user', function ($qq) use ($search) {
-            $qq->where('name', 'like', '%' . $search . '%');
-        })
-        ->orWhere('status', 'like', '%' . $search . '%');
+    // =========================
+    // فلترة الشهر
+    // =========================
+    if ($request->month) {
 
-    });
-}
-// فلترة
-if ($request->month) {
-    $query->where('month', $request->month);
-}
+        $query->where('month', $request->month);
 
-if ($request->from_month && $request->to_month) {
-    $query->whereBetween('month', [$request->from_month, $request->to_month]);
-}
+    }
 
-if ($request->year) {
-    $query->where('month', 'like', $request->year . '%');
-}
 
-   $contributions = $query
-    ->orderBy('month', 'asc')
-    ->orderBy(User::select('id')
-        ->whereColumn('users.id', 'contributions.user_id'))
-    ->get();
+    // =========================
+    // فلترة الفترة
+    // =========================
+    if ($request->from_month && $request->to_month) {
 
-    //  لو الطلب AJAX
+        $query->whereBetween(
+            'month',
+            [
+                $request->from_month,
+                $request->to_month
+            ]
+        );
+
+    }
+
+
+    // =========================
+    // فلترة السنة
+    // =========================
+    if ($request->year) {
+
+        $query->where(
+            'month',
+            'like',
+            $request->year . '%'
+        );
+
+    }
+
+
+    // =========================
+    // جلب البيانات
+    // =========================
+    $contributions = $query
+        ->orderBy('month', 'asc')
+        ->orderBy(
+            User::select('id')
+                ->whereColumn(
+                    'users.id',
+                    'contributions.user_id'
+                )
+        )
+        ->get();
+
+
+    // =========================
+    // حساب المجاميع
+    // =========================
+
+    $totalExpected = $contributions->sum('expected_amount');
+
+    $totalPaid = $contributions->sum('paid_amount');
+
+    $totalRemaining = $totalExpected - $totalPaid;
+
+
+    // =========================
+    // تحديد عنوان المجموع
+    // =========================
+
+    $totalTitle = 'المجموع الكلي';
+
+    if ($request->month) {
+
+        $totalTitle = 'مجموع الشهر';
+
+    } elseif ($request->from_month && $request->to_month) {
+
+        $totalTitle = 'مجموع الفترة';
+
+    } elseif ($request->year) {
+
+        $totalTitle = 'مجموع السنة';
+
+    }
+
+
+    // =========================
+    // طلب AJAX
+    // =========================
+
     if ($request->ajax()) {
-        return view('virtual-reality', compact('contributions'))->render();
+
+        return view(
+            'virtual-reality',
+            compact(
+                'contributions',
+                'totalExpected',
+                'totalPaid',
+                'totalRemaining',
+                'totalTitle'
+            )
+        )->render();
     }
+
+
+    // =========================
+    // الصفحة العادية
+    // =========================
 
     $users = User::where('status', 'active')->get();
-    return view('virtual-reality', compact('users', 'contributions'));
-}
 
+    return view(
+        'virtual-reality',
+        compact(
+            'users',
+            'contributions',
+            'totalExpected',
+            'totalPaid',
+            'totalRemaining',
+            'totalTitle'
+        )
+    );
+}
 public function generateMonth(Request $request)
 {
     $from = Carbon::parse($request->from_month);

@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'phone',
         'status',
+        'account_number',
+        'bank_name',
+        'iban',
     ];
 
     /**

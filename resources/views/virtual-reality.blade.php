@@ -327,100 +327,211 @@
 </form>
 </div>
         <div id="contributionsTable" class="table-responsive">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>الاسم</th>
-                <th>الشهر</th>
-                <th>المطلوب</th>
-                <th>المدفوع</th>
-                <th>الحالة</th>
-                <th>الاجراءات</th>
-              </tr>
-            </thead>
 
-            <tbody>
-@foreach($contributions as $contribution)
-<tr>
-    <td>{{ $contribution->user->name }}</td>
+    <table class="table align-items-center mb-0 text-center">
 
-    <td>{{ $contribution->month }}</td>
+        <thead>
+            <tr>
+                <th class="text-center">#</th>
+                <th class="text-center">الاسم</th>
+                <th class="text-center">الشهر</th>
+                <th class="text-center">المطلوب</th>
+                <th class="text-center">المدفوع</th>
+                <th class="text-center">الحالة</th>
+                <th class="text-center">الإجراءات</th>
+            </tr>
+        </thead>
 
-    <td>{{ $contribution->expected_amount }}</td>
+        <tbody>
 
-    <td>{{ $contribution->paid_amount }}</td>
+            @forelse($contributions as $contribution)
 
-    <td>
-        @if($contribution->status == 'paid')
-            <span class="badge bg-success">تم الدفع</span>
-        @elseif($contribution->status == 'partial')
-            <span class="badge bg-warning">جزئي</span>
-        @else
-            <span class="badge bg-danger">غير مدفوع</span>
-        @endif
-    </td>
+                <tr>
 
-    <td>
+                    {{-- الترقيم --}}
+                    <td class="text-center align-middle">
+                        {{ $loop->iteration }}
+                    </td>
+
+                    {{-- اسم العضو --}}
+                    <td class="text-center align-middle">
+                        {{ $contribution->user->name }}
+                    </td>
+
+                    {{-- الشهر --}}
+                    <td class="text-center align-middle">
+                        {{ $contribution->month }}
+                    </td>
+
+                    {{-- المبلغ المطلوب --}}
+                    <td class="text-center align-middle">
+                        {{ number_format($contribution->expected_amount, 2) }}
+                        <small>د.ل</small>
+                    </td>
+
+                    {{-- المبلغ المدفوع --}}
+                    <td class="text-center align-middle">
+                        {{ number_format($contribution->paid_amount, 2) }}
+                        <small>د.ل</small>
+                    </td>
+
+                    {{-- الحالة --}}
+                    <td class="text-center align-middle">
+
+                        @if($contribution->status == 'paid')
+
+                            <span class="badge bg-success">
+                                تم الدفع
+                            </span>
+
+                        @elseif($contribution->status == 'partial')
+
+                            <span class="badge bg-warning">
+                                جزئي
+                            </span>
+
+                        @else
+
+                            <span class="badge bg-danger">
+                                غير مدفوع
+                            </span>
+
+                        @endif
+
+                    </td>
+
+                    {{-- الإجراءات --}}
+                    <td class="text-center align-middle">
+
+                        {{-- زر الدفع --}}
+                        @if($contribution->status != 'paid')
+
+                            <button
+                                class="btn btn-sm btn-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#payModal{{ $contribution->id }}"
+                                title="تسجيل الدفع">
+
+                                دفع
+                                <i class="fas fa-money-bill-wave"></i>
+
+                            </button>
+
+                        @else
+
+                            <button
+                                class="btn btn-sm btn-success"
+                                disabled>
+
+                                خالص
+
+                            </button>
+
+                        @endif
 
 
-    {{-- زر الدفع --}}
-    @if($contribution->status != 'paid')
+                        {{-- زر التعديل --}}
+                        @if($contribution->status == 'paid' || $contribution->status == 'partial')
 
-        <button class="btn btn-sm btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#payModal{{ $contribution->id }}"
-                title="تسجيل الدفع">
-                 دفع
-            <i class="fas fa-money-bill-wave"></i>
-        </button>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-warning"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editPayModal{{ $contribution->id }}"
+                                title="تعديل الدفع">
 
-    @else
+                                <i class="fas fa-pen"></i>
 
-        {{-- خالص --}}
-        <button class="btn btn-sm btn-success" disabled>
-            خالص
-        </button>
+                            </button>
 
-    @endif
+                        @else
+
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-secondary"
+                                disabled
+                                title="لا يوجد دفع لتعديله">
+
+                                <i class="fas fa-pen"></i>
+
+                            </button>
+
+                        @endif
+
+                    </td>
+
+                </tr>
+
+            @empty
+
+                <tr>
+
+                    <td colspan="7" class="text-center py-4">
+
+                        <span class="text-muted">
+                            لا توجد اشتراكات لعرضها
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            @endforelse
+
+        </tbody>
 
 
-    {{-- زر التعديل --}}
-    @if($contribution->status == 'paid' || $contribution->status == 'partial')
+        {{-- المجموع --}}
+        <tfoot>
 
-        {{-- القلم فعال --}}
-        <button type="button"
-                class="btn btn-sm btn-warning"
-                data-bs-toggle="modal"
-                data-bs-target="#editPayModal{{ $contribution->id }}"
-                title="تعديل الدفع">
-               
-            <i class="fas fa-pen"></i>
+            @php
+                $totalExpected = $contributions->sum('expected_amount');
+                $totalPaid = $contributions->sum('paid_amount');
+                $totalRemaining = $totalExpected - $totalPaid;
+            @endphp
 
-        </button>
+            <tr class="bg-light">
 
-    @else
+                <td colspan="3"
+                    class="text-center align-middle fw-bold">
 
-        {{-- القلم غير فعال --}}
-        <button type="button"
-                class="btn btn-sm btn-secondary"
-                disabled
-                title="لا يوجد دفع لتعديله">
+                    المجموع الكلي
 
-            <i class="fas fa-pen"></i>
+                </td>
 
-        </button>
+                <td class="text-center align-middle fw-bold">
 
-    @endif
+                    {{ number_format($totalExpected, 2) }}
+                    د.ل
 
+                </td>
 
-        <!-- <a href="" class="btn btn-sm btn-warning">استثناء</a> -->
-    </td>
-</tr>
+                <td class="text-center align-middle fw-bold text-success">
 
-@endforeach
-</tbody>
-          </table>
-        </div>
+                    {{ number_format($totalPaid, 2) }}
+                    د.ل
+
+                </td>
+
+                <td class="text-center align-middle fw-bold text-danger">
+
+                    المتبقي
+                    <br>
+
+                    {{ number_format($totalRemaining, 2) }}
+                    د.ل
+
+                </td>
+
+                <td></td>
+
+            </tr>
+
+        </tfoot>
+
+    </table>
+
+</div>
       </div>
       @foreach($contributions as $contribution)
   <div class="modal fade" id="payModal{{ $contribution->id }}" tabindex="-1">

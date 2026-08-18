@@ -239,15 +239,15 @@
 const photos = [
     "../assets/img/illustrations/img10.jpg",
     "../assets/img/illustrations/img12.png",
-    "../assets/img/illustrations/img122.png",
+    "../assets/img/illustrations/img122.jpg",
     "../assets/img/illustrations/img4.jpg",
     "../assets/img/illustrations/img5.jpeg",
     "../assets/img/illustrations/img8.jpg",
-    "../assets/img/illustrations/img7.jpeg",
+     "../assets/img/illustrations/img7.jpeg",
     "../assets/img/illustrations/img88.jpg",
     "../assets/img/illustrations/img9.jpg",
     "../assets/img/illustrations/img11.jpg",
-    // "../assets/img/illustrations/img11.jpg",
+    "../assets/img/illustrations/img11.jpg",
     "../assets/img/illustrations/img12.png"
 ];
 

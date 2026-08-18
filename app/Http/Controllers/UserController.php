@@ -25,17 +25,23 @@ class UserController extends Controller
 public function store(Request $request)
 {
     $request->validate([
-        'name' => 'required|string|max:255',
-        'phone' => 'required|digits:10',
-        'status' => 'required',
-    ]);
+    'name' => 'required|string|max:255',
+    'phone' => 'required|digits:10',
+    'status' => 'required',
+    'account_number' => 'nullable|string|max:50',
+    'bank_name' => 'nullable|string|max:255',
+    'iban' => 'nullable|string|max:50',
+]);
 
     // إضافة العضو
     $user = User::create([
-        'name' => $request->name,
-        'phone' => $request->phone,
-        'status' => $request->status,
-    ]);
+    'name' => $request->name,
+    'phone' => $request->phone,
+    'status' => $request->status,
+    'account_number' => $request->account_number,
+    'bank_name' => $request->bank_name,
+    'iban' => $request->iban,
+]);
 
     // جلب جميع الأشهر الموجودة مع قيمة الاشتراك
     $months = Contribution::select('month', 'expected_amount')
@@ -58,15 +64,30 @@ public function store(Request $request)
     return redirect()->back()->with('success', 'تم إضافة العضو بنجاح');
 }
 
-    public function update(Request $request, $id)
+public function update(Request $request, $id)
 {
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'phone' => 'required|digits:10',
+        'status' => 'required',
+        'account_number' => 'nullable|string|max:50',
+        'bank_name' => 'nullable|string|max:255',
+        'iban' => 'nullable|string|max:50',
+    ]);
+
     $user = User::findOrFail($id);
-    $user->status = $request->status;
-    $user->save();
 
-    return redirect()->back();
+    $user->update([
+        'name' => $request->name,
+        'phone' => $request->phone,
+        'status' => $request->status,
+        'account_number' => $request->account_number,
+        'bank_name' => $request->bank_name,
+        'iban' => $request->iban,
+    ]);
+
+    return redirect()->back()->with('success', 'تم تعديل بيانات العضو بنجاح');
 }
-
 public function statement($id)
 {
     $user = User::findOrFail($id);
