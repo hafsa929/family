@@ -144,12 +144,19 @@
 
                                     <div>
                                         <h6 class="mb-1 fw-bold">
-                                            {{ $transaction->description }}
-                                        </h6>
+                                                {{ $transaction->description }}
+                                            </h6>
 
-                                        <small class="text-muted">
-                                            {{ $transaction->created_at->format('Y-m-d h:i A') }}
-                                        </small>
+                                            <div class="mb-1">
+                                                <small class="text-primary fw-bold">
+                                                    <i class="fas fa-user me-1"></i>
+                                                    {{ $transaction->user->name ?? 'غير معروف' }}
+                                                </small>
+                                            </div>
+
+                                            <small class="text-muted">
+                                                {{ $transaction->created_at->format('Y-m-d h:i A') }}
+                                            </small>
                                     </div>
 
                                 </div>
