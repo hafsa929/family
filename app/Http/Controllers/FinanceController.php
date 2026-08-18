@@ -23,13 +23,15 @@ class FinanceController extends Controller
         $expenses = Expense::latest()->take(5)->get();
 
         // آخر الإيرادات
-        $revenues = Transaction::where('type', 'deposit')
+        $revenues = Transaction::with('user')
+            ->where('type', 'deposit')
             ->latest()
             ->take(5)
             ->get();
 
         // آخر العمليات
-        $transactions = Transaction::orderBy('created_at','desc')
+        $transactions = Transaction::with('user')
+            ->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
 $users = User::all();
