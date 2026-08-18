@@ -222,73 +222,166 @@ public function existingMonths()
     return response()->json($months);
 }
 
-public function pay(Request $request , $id)
+public function pay(Request $request, $id)
 {
     $firstContribution = Contribution::findOrFail($id);
 
-    $amount = $request->amount;
-    $originalAmount = $amount;
-    $paymentMethod = $request->payment_method;
+    $request->validate([
+        'amount' => 'required|numeric|min:0.01',
+        'payment_method' => 'nullable|string',
+    ]);
+
+    $amount = (float) $request->amount;
     $userId = $firstContribution->user_id;
+    $paymentMethod = $request->payment_method;
+
+    /*
+    |--------------------------------------------------------------------------
+    | جلب الأشهر غير المسددة فقط
+    |--------------------------------------------------------------------------
+    */
+    $contributions = Contribution::where('user_id', $userId)
+        ->whereIn('status', ['unpaid', 'partial'])
+        ->orderBy('month', 'asc')
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | حساب إجمالي المبلغ المتبقي
+    |--------------------------------------------------------------------------
+    */
+    $totalRemaining = $contributions->sum(function ($contribution) {
+        return max(
+            0,
+            (float) $contribution->expected_amount -
+            (float) $contribution->paid_amount
+        );
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | التأكد أن المبلغ لا يتجاوز المطلوب
+    |--------------------------------------------------------------------------
+    */
+    if ($amount > $totalRemaining) {
+        return back()->with(
+            'error',
+            'المبلغ المدفوع أكبر من إجمالي المبلغ المتبقي على العضو. المتبقي هو '
+            . number_format($totalRemaining, 2)
+            . ' د.ل'
+        );
+    }
+
+    $remainingAmount = $amount;
 
     $coveredMonths = [];
 
-    $contributions = Contribution::where('user_id', $userId)
-        ->where('status', '!=', 'paid')
-        ->orderBy('month')
-        ->get();
-
+    /*
+    |--------------------------------------------------------------------------
+    | توزيع المبلغ من أقدم شهر إلى أحدث شهر
+    |--------------------------------------------------------------------------
+    */
     foreach ($contributions as $contribution) {
 
-        if ($amount <= 0) break;
+        if ($remainingAmount <= 0) {
+            break;
+        }
 
-        $remaining = $contribution->expected_amount - $contribution->paid_amount;
+        $expected = (float) $contribution->expected_amount;
+        $paid = (float) $contribution->paid_amount;
 
-        if ($remaining <= 0) continue;
+        $remaining = max(0, $expected - $paid);
 
-        $paidNow = min($amount, $remaining);
+        if ($remaining <= 0) {
+            continue;
+        }
 
-        $contribution->paid_amount += $paidNow;
-        $amount -= $paidNow;
+        // المبلغ الذي سيذهب لهذا الشهر
+        $paidNow = min($remainingAmount, $remaining);
 
-        $coveredMonths[] = $contribution->month;
+        $contribution->paid_amount = $paid + $paidNow;
 
-        $contribution->status =
-            $contribution->paid_amount >= $contribution->expected_amount
-            ? 'paid'
-            : 'partial';
+        /*
+        |--------------------------------------------------------------------------
+        | تحديث حالة الشهر
+        |--------------------------------------------------------------------------
+        */
+        if ($contribution->paid_amount >= $expected) {
+            $contribution->paid_amount = $expected;
+            $contribution->status = 'paid';
+        } else {
+            $contribution->status = 'partial';
+        }
 
         $contribution->save();
+
+        /*
+        |--------------------------------------------------------------------------
+        | خصم المبلغ الذي تم توزيعه
+        |--------------------------------------------------------------------------
+        */
+        $remainingAmount -= $paidNow;
+
+        /*
+        |--------------------------------------------------------------------------
+        | تسجيل الشهر الذي تمت تغطيته
+        |--------------------------------------------------------------------------
+        */
+        $coveredMonths[] = [
+            'month' => $contribution->month,
+            'amount' => $paidNow,
+        ];
     }
 
-    
-    if (count($coveredMonths) > 0) {
+    /*
+    |--------------------------------------------------------------------------
+    | المبلغ الذي تم دفعه فعليًا
+    |--------------------------------------------------------------------------
+    */
+    $actualPaidAmount = $amount - $remainingAmount;
 
-    // استخراج الأشهر بشكل مختصر 01 - 02 - 03
-    $monthsFormatted = collect($coveredMonths)
-        ->map(function ($m) {
-            return \Carbon\Carbon::parse($m)->format('m');
-        })
-        ->implode(' - ');
+    /*
+    |--------------------------------------------------------------------------
+    | إنشاء Transaction واحدة فقط للدفعة كاملة
+    |--------------------------------------------------------------------------
+    */
+    if ($actualPaidAmount > 0 && count($coveredMonths) > 0) {
 
-    // السنة من أول شهر
-    $year = \Carbon\Carbon::parse($coveredMonths[0])->format('Y');
+        $monthsFormatted = collect($coveredMonths)
+            ->map(function ($item) {
+                return Carbon::parse($item['month'])->format('m');
+            })
+            ->implode(' - ');
 
-    Transaction::create([
-        'user_id' => $userId,
-        'type' => 'deposit',
-        'amount' => $originalAmount,
-        'payment_method' => $paymentMethod,
-        'reference_type' => 'bulk_payment',
-        'reference_id' => $firstContribution->id,
-        'description' =>
-            'تم دفع مبلغ تراكمي (' . $originalAmount . ') '
-            . 'وتم تقسيمه على الأشهر (' . $monthsFormatted . ') من ' . $year,
-    ]);
+        $year = Carbon::parse($coveredMonths[0]['month'])
+            ->format('Y');
 
+        Transaction::create([
+            'user_id' => $userId,
+            'type' => 'deposit',
+            'amount' => $actualPaidAmount,
+            'payment_method' => $paymentMethod,
+            'reference_type' => 'bulk_payment',
+
+            // معرف أول مساهمة فقط كمرجع للدفعة
+            'reference_id' => $firstContribution->id,
+
+            'description' =>
+                'تم دفع مبلغ تراكمي (' .
+                number_format($actualPaidAmount, 2) .
+                ') وتم تقسيمه على الأشهر (' .
+                $monthsFormatted .
+                ') من سنة ' .
+                $year,
+        ]);
     }
 
-    return back()->with('success', 'تم توزيع الدفع بنجاح');
+    return back()->with(
+        'success',
+        'تم توزيع الدفع بنجاح بمبلغ ' .
+        number_format($actualPaidAmount, 2) .
+        ' د.ل'
+    );
 }
 public function missingMonths()
 {

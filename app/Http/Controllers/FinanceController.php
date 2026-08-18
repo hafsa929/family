@@ -9,44 +9,49 @@ use App\Models\User;
 
 class FinanceController extends Controller
 {
-    public function index()
-    {
-        // إجمالي الإيرادات
-        $totalRevenues = Transaction::where('type', 'deposit')->sum('amount');
-        // إجمالي المصروفات
-        $totalExpenses = Transaction::where('type', 'withdraw')->sum('amount');
-        // الرصيد الحالي
-        $balance = $totalRevenues - $totalExpenses;
+   public function index()
+{
+    // إجمالي الإيرادات الحقيقي
+    // يعتمد على المبالغ المدفوعة فعلياً في الاشتراكات
+    $totalRevenues = \App\Models\Contribution::sum('paid_amount');
 
-        // آخر المصروفات
-        $expenses = Expense::latest()->take(5)->get();
+    // إجمالي المصروفات
+    $totalExpenses = Transaction::where('type', 'withdraw')
+        ->sum('amount');
 
-        // آخر الإيرادات
-        $revenues = Transaction::with('user')
-            ->where('type', 'deposit')
-            ->latest()
-            ->take(5)
-            ->get();
+    // الرصيد الحالي
+    $balance = $totalRevenues - $totalExpenses;
 
-        // آخر العمليات
-        $transactions = Transaction::with('user')
-            ->orderBy('created_at', 'desc')
-            ->limit(10)
-            ->get();
-        $users = User::all();
+    // آخر المصروفات
+    $expenses = Expense::latest()
+        ->take(5)
+        ->get();
 
-        return view('billing', [
-    'totalRevenues' => $totalRevenues,
-    'totalExpenses' => $totalExpenses,
-    'balance' => $balance,
-    'transactions' => $transactions,
-    'expenses' => $expenses,
-    'revenues' => $revenues,
-    'users' =>$users,
+    // آخر الإيرادات
+    $revenues = Transaction::with('user')
+        ->where('type', 'deposit')
+        ->latest()
+        ->take(5)
+        ->get();
 
-]);
-    }
+    // آخر العمليات
+    $transactions = Transaction::with('user')
+        ->orderBy('created_at', 'desc')
+        ->limit(10)
+        ->get();
 
+    $users = User::all();
+
+    return view('billing', [
+        'totalRevenues' => $totalRevenues,
+        'totalExpenses' => $totalExpenses,
+        'balance' => $balance,
+        'transactions' => $transactions,
+        'expenses' => $expenses,
+        'revenues' => $revenues,
+        'users' => $users,
+    ]);
+}
 
 public function store(Request $request)
 {
