@@ -21,8 +21,9 @@ class DashboardController extends Controller
 
             //  رصيد الصندوق (تبرعات - مصاريف)
             'fundBalance' => 
-                (Transaction::where('type', 'deposit')->sum('amount') - Expense::sum('amount')),
+                (\App\Models\Contribution::sum('paid_amount') -Transaction::where('type', 'withdraw')->sum('amount')),
 
+    
             //  معاملات اليوم
             'transactionsToday' => Transaction::whereDate('created_at', today())->count(),
 
