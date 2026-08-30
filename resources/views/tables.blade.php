@@ -87,25 +87,22 @@
 
                         </a>
 
-                       {{-- زر مشاركة كشف العضو عبر واتساب --}}
+                       {{-- زر مشاركة الكشف عبر واتساب --}}
                             @php
-                                $whatsappNumber = '218917490040';
-
-                                // رابط PDF الخاص بالعضو
-                                $statementPdfUrl = route('users.statementPdf', $user->id);
+                                $statementUrl = route('users.statement', $user->id);
 
                                 $message = "السلام عليكم،\n\n";
                                 $message .= "هذا كشف حساب العضو: " . $user->name . "\n\n";
-                                $message .= "يمكنك تحميل كشف الحساب بصيغة PDF من الرابط التالي:\n";
-                                $message .= $statementPdfUrl;
+                                $message .= "يمكنك الاطلاع على الكشف من خلال الرابط التالي:\n";
+                                $message .= $statementUrl;
                             @endphp
 
                             <a
-                                href="https://wa.me/{{ $whatsappNumber }}?text={{ urlencode($message) }}"
+                                href="https://wa.me/?text={{ urlencode($message) }}"
                                 target="_blank"
                                 class="btn btn-sm btn-success">
 
-                                <i class="fab fa-whatsapp me-1"></i>
+                                <i class="fab fa-whatsapp"></i>
                                 مشاركة الكشف
 
                             </a>
