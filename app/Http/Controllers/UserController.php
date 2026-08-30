@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Contribution;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Hash;
+use Mpdf\Mpdf;
 
 class UserController extends Controller
 {
@@ -106,4 +107,38 @@ public function statement($id)
     ));
 }
 
+public function statementPdf($id)
+{
+    $user = User::findOrFail($id);
+
+    $contributions = Contribution::where('user_id', $id)
+        ->orderBy('month')
+        ->get();
+
+    $transactions = Transaction::where('user_id', $id)
+        ->latest()
+        ->get();
+
+    $html = view('users.statement', compact(
+        'user',
+        'contributions',
+        'transactions'
+    ))->render();
+
+    $mpdf = new \Mpdf\Mpdf([
+        'mode' => 'utf-8',
+        'format' => 'A4',
+        'directionality' => 'rtl',
+        'default_font' => 'dejavusans'
+    ]);
+
+    $mpdf->WriteHTML($html);
+
+    return response(
+        $mpdf->Output(
+            'كشف-' . $user->name . '.pdf',
+            'S'
+        )
+    )->header('Content-Type', 'application/pdf');
+}
 }

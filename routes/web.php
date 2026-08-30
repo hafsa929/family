@@ -23,7 +23,7 @@ Route::put('/users/{id}', [UserController::class, 'update']);
 Route::post('/users', [UserController::class, 'store'])->name('users.store');
 Route::get('/users/{id}/statement', [UserController::class, 'statement'])
     ->name('users.statement'); //طباعه كشف
-
+Route::get('/users/{id}/statement/pdf',[UserController::class, 'statementPdf'])->name('users.statementPdf');
 Route::get('/contributions', [ContributionController::class, 'index']);
 Route::post('/contributions/generate-month', [ContributionController::class, 'generateMonth']);
 Route::post('/contributions/pay/{id}', [ContributionController::class, 'pay'])->name('contributions.pay');

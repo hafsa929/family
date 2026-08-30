@@ -67,6 +67,7 @@
 
                     <td>
 
+                        {{-- زر تعديل البيانات --}}
                         <button 
                             class="btn btn-sm btn-warning"
                             data-bs-toggle="modal"
@@ -75,6 +76,8 @@
                             تعديل البيانات
 
                         </button>
+
+                        {{-- زر طباعة الكشف --}}
                         <a 
                             href="{{ route('users.statement', $user->id) }}"
                             target="_blank"
@@ -84,6 +87,28 @@
 
                         </a>
 
+                       {{-- زر مشاركة كشف العضو عبر واتساب --}}
+                            @php
+                                $whatsappNumber = '218917490040';
+
+                                // رابط PDF الخاص بالعضو
+                                $statementPdfUrl = route('users.statementPdf', $user->id);
+
+                                $message = "السلام عليكم،\n\n";
+                                $message .= "هذا كشف حساب العضو: " . $user->name . "\n\n";
+                                $message .= "يمكنك تحميل كشف الحساب بصيغة PDF من الرابط التالي:\n";
+                                $message .= $statementPdfUrl;
+                            @endphp
+
+                            <a
+                                href="https://wa.me/{{ $whatsappNumber }}?text={{ urlencode($message) }}"
+                                target="_blank"
+                                class="btn btn-sm btn-success">
+
+                                <i class="fab fa-whatsapp me-1"></i>
+                                مشاركة الكشف
+
+                            </a>
                     </td>
 
                 </tr>
