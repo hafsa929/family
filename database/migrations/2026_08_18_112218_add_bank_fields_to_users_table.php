@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -12,9 +13,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('account_number')->nullable();
-            $table->string('bank_name')->nullable();
-            $table->string('iban')->nullable();
+            if (!Schema::hasColumn('users', 'account_number')) {
+                $table->string('account_number')->nullable();
+            }
+
+            if (!Schema::hasColumn('users', 'bank_name')) {
+                $table->string('bank_name')->nullable();
+            }
+
+            if (!Schema::hasColumn('users', 'iban')) {
+                $table->string('iban')->nullable();
+            }
         });
     }
 
@@ -23,8 +32,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
-        });
+        // لا نحذف الأعمدة حتى لا نحذف بيانات موجودة مسبقًا.
     }
 };
+
