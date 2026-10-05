@@ -53,32 +53,26 @@
             </h6>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url('/profile') }}">
-                <div class="icon icon-shape icon-sm border-radius-md text-center ms-2 d-flex align-items-center justify-content-center">
-                    <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
-                </div>
-                <span class="nav-link-text me-1">حساب تعريفي</span>
-            </a>
-        </li>
+        
 
         <li class="nav-item">
-            <a class="nav-link" href="#">
-                <div class="icon icon-shape icon-sm border-radius-md text-center ms-2 d-flex align-items-center justify-content-center">
-                    <i class="ni ni-single-copy-04 text-warning text-sm opacity-10"></i>
-                </div>
-                <span class="nav-link-text me-1">تسجيل الدخول</span>
-            </a>
+            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                @csrf
+
+                <button type="submit"
+                        class="nav-link"
+                        style="border: none; background: transparent; width: 100%; text-align: right; padding: .5rem 1rem;">
+
+                    <div class="icon icon-shape icon-sm border-radius-md text-center ms-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-sign-out-alt text-warning text-sm opacity-10"></i>
+                    </div>
+
+                    <span class="nav-link-text ms-1">تسجيل خروج</span>
+
+                </button>
+            </form>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link" href="#">
-                <div class="icon icon-shape icon-sm border-radius-md text-center ms-2 d-flex align-items-center justify-content-center">
-                    <i class="ni ni-collection text-info text-sm opacity-10"></i>
-                </div>
-                <span class="nav-link-text me-1">اشتراك</span>
-            </a>
-        </li>
 
     </ul>
 </div>
@@ -92,8 +86,8 @@
           </div>
         </div>
       </div>
-      <a href="https://www.creative-tim.com/learning-lab/bootstrap/license/argon-dashboard" target="_blank" class="btn btn-dark btn-sm w-100 mb-3">توثيق</a>
-      <a class="btn btn-primary btn-sm mb-0 w-100" href="https://www.creative-tim.com/product/argon-dashboard-pro?ref=sidebarfree" type="button">التطور للاحترافية</a>
+      <a href="#" target="_blank" class="btn btn-dark btn-sm w-100 mb-3">توثيق</a>
+      <a class="btn btn-primary btn-sm mb-0 w-100" href="#" type="button">التطور للاحترافية</a>
     </div>
   </aside>
   

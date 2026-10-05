@@ -11,11 +11,13 @@ use Mpdf\Mpdf;
 
 class UserController extends Controller
 {
-     public function index()
+  
+public function index()
 {
-    
-    $users = User::orderBy('id', 'asc')->get();
-
+    // جلب الأعضاء فقط واستبعاد حساب المدير
+    $users = User::where('is_admin', false)
+        ->orderBy('id', 'asc')
+        ->get();
 
     $contributions = Contribution::with('user')
         ->where('month', date('Y-m'))
@@ -23,6 +25,8 @@ class UserController extends Controller
 
     return view('tables', compact('users', 'contributions'));
 }
+
+
 public function store(Request $request)
 {
     $request->validate([
@@ -42,6 +46,7 @@ public function store(Request $request)
     'account_number' => $request->account_number,
     'bank_name' => $request->bank_name,
     'iban' => $request->iban,
+    'is_admin' => false,
 ]);
 
     // جلب جميع الأشهر الموجودة مع قيمة الاشتراك
@@ -76,7 +81,7 @@ public function update(Request $request, $id)
         'iban' => 'nullable|string|max:50',
     ]);
 
-    $user = User::findOrFail($id);
+    $user = User::where('is_admin', false)->findOrFail($id);
 
     $user->update([
         'name' => $request->name,
@@ -91,7 +96,7 @@ public function update(Request $request, $id)
 }
 public function statement($id)
 {
-    $user = User::findOrFail($id);
+    $user = User::where('is_admin', false)->findOrFail($id);
 
     $contributions = Contribution::where('user_id', $id)
         ->orderBy('month')
@@ -109,7 +114,8 @@ public function statement($id)
 
 public function statementPdf($id)
 {
-    $user = User::findOrFail($id);
+    
+    $user = User::where('is_admin', false)->findOrFail($id);
 
     $contributions = Contribution::where('user_id', $id)
         ->orderBy('month')
