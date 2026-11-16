@@ -1,4 +1,3 @@
-
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -16,31 +15,18 @@ use App\Http\Controllers\Auth\LoginController;
 |--------------------------------------------------------------------------
 */
 
+// صفحة تسجيل الدخول
 Route::get('/login', [LoginController::class, 'showLoginForm'])
     ->name('login');
 
+// تنفيذ تسجيل الدخول
 Route::post('/login', [LoginController::class, 'login'])
     ->name('login.authenticate');
 
 
 /*
 |--------------------------------------------------------------------------
-| كشف حساب المستخدم - بدون تسجيل دخول
-|--------------------------------------------------------------------------
-*/
-
-// كشف حساب المستخدم
-Route::get('/users/{id}/statement', [UserController::class, 'statement'])
-    ->name('users.statement');
-
-// كشف الحساب PDF
-Route::get('/users/{id}/statement/pdf', [UserController::class, 'statementPdf'])
-    ->name('users.statementPdf');
-
-
-/*
-|--------------------------------------------------------------------------
-| الصفحات المحمية بتسجيل الدخول
+| الصفحات المحمية
 |--------------------------------------------------------------------------
 */
 
@@ -66,8 +52,8 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::post('/logout', [LoginController::class, 'logout'])
-        ->name('logout');
+   Route::post('/logout', [LoginController::class, 'logout'])
+    ->name('logout');
 
 
     /*
@@ -96,6 +82,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/users/{id}', [UserController::class, 'update']);
 
 
+
     /*
     |--------------------------------------------------------------------------
     | Contributions
@@ -110,15 +97,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/missing-months', [ContributionController::class, 'missingMonths']);
 
-
     // إنشاء شهر جديد
     Route::post('/contributions/generate-month', [ContributionController::class, 'generateMonth']);
-
 
     // دفع مساهمة
     Route::post('/contributions/pay/{id}', [ContributionController::class, 'pay'])
         ->name('contributions.pay');
-
 
     // تعديل الدفع
     Route::put('/contributions/update-payment/{id}', [ContributionController::class, 'updatePayment'])
@@ -131,11 +115,11 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/contributions/print/month/{month}',
+    Route::get('/contributions/print/month/{month}', 
         [ContributionController::class, 'printMonth']
     );
 
-    Route::get('/contributions/print/year/{year}',
+    Route::get('/contributions/print/year/{year}', 
         [ContributionController::class, 'printYear']
     );
 
@@ -146,11 +130,11 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/contributions/pdf/month/{month}',
+    Route::get('/contributions/pdf/month/{month}', 
         [ContributionController::class, 'pdfMonth']
     );
 
-    Route::get('/contributions/pdf/year/{year}',
+    Route::get('/contributions/pdf/year/{year}', 
         [ContributionController::class, 'pdfYear']
     )->name('contributions.pdf.year');
 
@@ -164,9 +148,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/billing', [FinanceController::class, 'index'])
         ->name('billing');
 
-
     // إضافة مصروف
     Route::post('/expenses/store', [FinanceController::class, 'store'])
         ->name('expenses.store');
 
 });
+
+    // كشف حساب المستخدم
+    Route::get('/users/{id}/statement', [UserController::class, 'statement'])
+        ->name('users.statement');
+
+    // كشف الحساب PDF
+    Route::get('/users/{id}/statement/pdf', [UserController::class, 'statementPdf'])
+        ->name('users.statementPdf');
